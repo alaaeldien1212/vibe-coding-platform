@@ -1,5 +1,6 @@
 import { ToggleWelcome } from '@/components/modals/welcome'
 import { VercelDashed } from '@/components/icons/vercel-dashed'
+import { ApiStatusIndicator } from '@/components/api-status-indicator'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -15,7 +16,8 @@ export async function Header({ className }: Props) {
           OSS Vibe Coding Platform
         </span>
       </div>
-      <div className="flex items-center ml-auto space-x-1.5">
+      <div className="flex items-center ml-auto space-x-2">
+        <ApiStatusIndicator />
         <ToggleWelcome />
       </div>
     </header>
