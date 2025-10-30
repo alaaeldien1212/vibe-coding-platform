@@ -116,10 +116,12 @@ export class TriggerSandbox {
  */
 export class TriggerCommand {
   cmdId: string;
+  startedAt: number;
   private commandInfo: CommandInfo;
 
   constructor(cmdId: string, commandInfo: CommandInfo) {
     this.cmdId = cmdId;
+    this.startedAt = commandInfo.startedAt;
     this.commandInfo = commandInfo;
   }
 

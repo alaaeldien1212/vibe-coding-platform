@@ -22,6 +22,7 @@ export async function GET(
   return NextResponse.json({
     sandboxId: sandbox.sandboxId,
     cmdId: command.cmdId,
+    startedAt: command.startedAt,
     exitCode: done?.exitCode,
   })
 }

@@ -15,6 +15,7 @@ export interface CommandInfo {
   command: string;
   args: string[];
   startTime: number;
+  startedAt: number;
   exitCode?: number;
   finished: boolean;
 }
@@ -45,12 +46,14 @@ export async function executeCommand(options: {
   }
 
   const cmdId = randomUUID();
+  const now = Date.now();
   const commandInfo: CommandInfo = {
     cmdId,
     sandboxId: options.sandboxId,
     command: options.command,
     args: options.args || [],
-    startTime: Date.now(),
+    startTime: now,
+    startedAt: now,
     finished: false,
   };
 
