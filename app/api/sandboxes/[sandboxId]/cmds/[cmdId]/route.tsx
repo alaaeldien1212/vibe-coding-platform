@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { Sandbox } from '@vercel/sandbox'
+import { Sandbox } from '@/lib/trigger-client'
 
 interface Params {
   sandboxId: string
@@ -22,7 +22,6 @@ export async function GET(
   return NextResponse.json({
     sandboxId: sandbox.sandboxId,
     cmdId: command.cmdId,
-    startedAt: command.startedAt,
     exitCode: done?.exitCode,
   })
 }

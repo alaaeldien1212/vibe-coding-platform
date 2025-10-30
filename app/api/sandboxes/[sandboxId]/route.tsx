@@ -1,10 +1,8 @@
-import { APIError } from '@vercel/sandbox/dist/api-client/api-error'
 import { NextRequest, NextResponse } from 'next/server'
-import { Sandbox } from '@vercel/sandbox'
+import { Sandbox } from '@/lib/trigger-client'
 
 /**
- * We must change the SDK to add data to the instance and then
- * use it to retrieve the status of the Sandbox.
+ * Check if a sandbox is running by attempting to execute a command
  */
 export async function GET(
   _request: NextRequest,
@@ -19,10 +17,8 @@ export async function GET(
     })
     return NextResponse.json({ status: 'running' })
   } catch (error) {
-    if (
-      error instanceof APIError &&
-      error.json.error.code === 'sandbox_stopped'
-    ) {
+    // If sandbox not found or command fails, consider it stopped
+    if (error instanceof Error && error.message.includes('not found')) {
       return NextResponse.json({ status: 'stopped' })
     } else {
       throw error

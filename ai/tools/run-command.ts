@@ -1,6 +1,6 @@
 import type { UIMessageStreamWriter, UIMessage } from 'ai'
 import type { DataPart } from '../messages/data-parts'
-import { Command, Sandbox } from '@vercel/sandbox'
+import { Sandbox, TriggerSandbox, TriggerCommand } from '@/lib/trigger-client'
 import { getRichError } from './get-rich-error'
 import { tool } from 'ai'
 import description from './run-command.md'
@@ -48,7 +48,7 @@ export const runCommand = ({ writer }: Params) =>
         data: { sandboxId, command, args, status: 'executing' },
       })
 
-      let sandbox: Sandbox | null = null
+      let sandbox: TriggerSandbox | null = null
 
       try {
         sandbox = await Sandbox.get({ sandboxId })
@@ -74,7 +74,7 @@ export const runCommand = ({ writer }: Params) =>
         return richError.message
       }
 
-      let cmd: Command | null = null
+      let cmd: TriggerCommand | null = null
 
       try {
         cmd = await sandbox.runCommand({

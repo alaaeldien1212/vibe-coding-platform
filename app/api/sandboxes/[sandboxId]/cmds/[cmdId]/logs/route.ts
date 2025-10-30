@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { Sandbox } from '@vercel/sandbox'
+import { Sandbox } from '@/lib/trigger-client'
 
 interface Params {
   sandboxId: string
@@ -24,7 +24,7 @@ export async function GET(
               JSON.stringify({
                 data: logline.data,
                 stream: logline.stream,
-                timestamp: Date.now(),
+                timestamp: logline.timestamp,
               }) + '\n'
             )
           )

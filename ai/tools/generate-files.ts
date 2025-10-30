@@ -1,6 +1,6 @@
 import type { UIMessageStreamWriter, UIMessage } from 'ai'
 import type { DataPart } from '../messages/data-parts'
-import { Sandbox } from '@vercel/sandbox'
+import { Sandbox, TriggerSandbox } from '@/lib/trigger-client'
 import { getContents, type File } from './generate-files/get-contents'
 import { getRichError } from './get-rich-error'
 import { getWriteFiles } from './generate-files/get-write-files'
@@ -27,7 +27,7 @@ export const generateFiles = ({ writer, modelId }: Params) =>
         data: { paths: [], status: 'generating' },
       })
 
-      let sandbox: Sandbox | null = null
+      let sandbox: TriggerSandbox | null = null
 
       try {
         sandbox = await Sandbox.get({ sandboxId })

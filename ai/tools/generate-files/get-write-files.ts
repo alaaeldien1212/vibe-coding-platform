@@ -1,11 +1,11 @@
 import type { DataPart } from '../../messages/data-parts'
 import type { File } from './get-contents'
-import type { Sandbox } from '@vercel/sandbox'
+import type { TriggerSandbox } from '@/lib/trigger-client'
 import type { UIMessageStreamWriter, UIMessage } from 'ai'
 import { getRichError } from '../get-rich-error'
 
 interface Params {
-  sandbox: Sandbox
+  sandbox: TriggerSandbox
   toolCallId: string
   writer: UIMessageStreamWriter<UIMessage<never, DataPart>>
 }
@@ -26,7 +26,7 @@ export function getWriteFiles({ sandbox, toolCallId, writer }: Params) {
     try {
       await sandbox.writeFiles(
         params.files.map((file) => ({
-          content: Buffer.from(file.content, 'utf8'),
+          content: file.content,
           path: file.path,
         }))
       )

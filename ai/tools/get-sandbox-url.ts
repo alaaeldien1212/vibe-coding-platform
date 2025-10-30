@@ -1,6 +1,6 @@
 import type { UIMessageStreamWriter, UIMessage } from 'ai'
 import type { DataPart } from '../messages/data-parts'
-import { Sandbox } from '@vercel/sandbox'
+import { Sandbox } from '@/lib/trigger-client'
 import { tool } from 'ai'
 import description from './get-sandbox-url.md'
 import z from 'zod/v3'
