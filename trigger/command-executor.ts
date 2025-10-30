@@ -4,10 +4,22 @@
  * This module handles command execution within sandboxes with real-time output streaming
  */
 
-import { spawn, type ChildProcess } from 'child_process';
+import { spawn, execSync, type ChildProcess } from 'child_process';
 import { randomUUID } from 'crypto';
 import { getSandbox } from './sandbox-manager';
 import type { Readable } from 'stream';
+
+/**
+ * Check if a command exists in the system
+ */
+function commandExists(command: string): boolean {
+  try {
+    execSync(`which ${command}`, { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export interface CommandInfo {
   cmdId: string;
@@ -60,10 +72,20 @@ export async function executeCommand(options: {
   commands.set(cmdId, commandInfo);
   commandLogs.set(cmdId, []);
 
-  const finalCommand = options.sudo ? 'sudo' : options.command;
+  // Map pnpm to npm if pnpm is not available (for local sandboxes)
+  let actualCommand = options.command;
+  let actualArgs = [...commandInfo.args];
+  
+  // Check if command is pnpm and it's not available, fall back to npm
+  if (options.command === 'pnpm' && !commandExists('pnpm')) {
+    actualCommand = 'npm';
+    console.log('[Sandbox] pnpm not found, using npm instead');
+  }
+  
+  const finalCommand = options.sudo ? 'sudo' : actualCommand;
   const finalArgs = options.sudo 
-    ? [options.command, ...commandInfo.args]
-    : commandInfo.args;
+    ? [actualCommand, ...actualArgs]
+    : actualArgs;
 
   const childProcess = spawn(finalCommand, finalArgs, {
     cwd: sandbox.workDir,
