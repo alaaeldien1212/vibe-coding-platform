@@ -42,6 +42,9 @@ export async function createSandbox(options: {
   timeout?: number;
   ports?: number[];
 }): Promise<SandboxInfo> {
+  // Clean up old sandboxes before creating a new one (aggressive cleanup)
+  await cleanupOldSandboxes();
+  
   const sandboxId = randomUUID();
   const workDir = path.join(SANDBOX_BASE_DIR, sandboxId);
 
@@ -52,7 +55,7 @@ export async function createSandbox(options: {
       sandboxId,
       workDir,
       createdAt: Date.now(),
-      timeout: options.timeout || 600000, // 10 minutes default
+      timeout: options.timeout || 180000, // 3 minutes default (reduced from 10)
       ports: options.ports || [],
     };
 
@@ -173,6 +176,47 @@ export async function cleanupSandbox(sandboxId: string): Promise<void> {
  */
 export function getActiveSandboxes(): SandboxInfo[] {
   return Array.from(sandboxes.values());
+}
+
+/**
+ * Clean up old sandboxes (older than 5 minutes)
+ * This prevents disk space issues on serverless environments
+ */
+async function cleanupOldSandboxes(): Promise<void> {
+  const now = Date.now();
+  const maxAge = 300000; // 5 minutes
+  
+  try {
+    // Check all sandboxes in memory
+    for (const [sandboxId, sandbox] of sandboxes.entries()) {
+      const age = now - sandbox.createdAt;
+      if (age > maxAge) {
+        await cleanupSandbox(sandboxId);
+      }
+    }
+    
+    // Also check filesystem for orphaned sandboxes
+    try {
+      const entries = await fs.readdir(SANDBOX_BASE_DIR, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          const sandboxPath = path.join(SANDBOX_BASE_DIR, entry.name);
+          const stats = await fs.stat(sandboxPath);
+          const age = now - stats.mtimeMs;
+          
+          // Delete sandboxes older than 5 minutes
+          if (age > maxAge) {
+            await fs.rm(sandboxPath, { recursive: true, force: true });
+            console.log(`[Cleanup] Removed old sandbox: ${entry.name}`);
+          }
+        }
+      }
+    } catch (error) {
+      // Directory might not exist yet, that's ok
+    }
+  } catch (error) {
+    console.error('Error during cleanup:', error);
+  }
 }
 
 // Initialize on module load
