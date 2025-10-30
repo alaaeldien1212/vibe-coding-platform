@@ -56,7 +56,11 @@ export function getModelOptions(
 }
 
 function gatewayInstance() {
+  // If no gateway URL is set, use direct API access to avoid Vercel rate limits
+  // The AI SDK will automatically use ANTHROPIC_API_KEY or OPENAI_API_KEY
+  const baseURL = process.env.AI_GATEWAY_BASE_URL
+  
   return createGatewayProvider({
-    baseURL: process.env.AI_GATEWAY_BASE_URL,
+    baseURL: baseURL || undefined, // undefined = use direct API provider
   })
 }
